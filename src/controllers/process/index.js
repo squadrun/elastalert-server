@@ -42,8 +42,8 @@ export default class ProcessController {
     this._status = Status.STARTING;
 
     // Create ElastAlert index if it doesn't exist yet
-    logger.info('Creating index');
-    var indexCreate = spawnSync('python', ['-m', 'elastalert.create_index', '--index', config.get('writeback_index'), '--old-index', ''], {
+    /*logger.info('Creating index');
+    var indexCreate = spawnSync('python3', ['-m', 'elastalert.create_index', '--index', config.get('writeback_index'), '--old-index', '', '--host', config.get('es_host'), '--port', config.get('es_port'), '--no-ssl'], {
       cwd: this._elastalertPath
     });
 
@@ -61,7 +61,7 @@ export default class ProcessController {
     } else {
       logger.error(`Index create exited with code ${indexCreate.status}`);
       logger.warn('ElastAlert will start but might not be able to save its data!');
-    }
+    }*/
 
     let startArguments = [];
 
@@ -92,7 +92,7 @@ export default class ProcessController {
 
     logger.info('Starting elastalert with arguments ' + (startArguments.join(' ') || '[none]'));
 
-    this._process = spawn('python', ['-m', 'elastalert.elastalert'].concat(startArguments), {
+    this._process = spawn('python3', ['-m', 'elastalert.elastalert', '--config', '/home/admin/elastalert/elastalert.yaml'].concat(startArguments), {
       cwd: this._elastalertPath
     });
 
