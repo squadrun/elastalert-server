@@ -3,7 +3,7 @@
   "port": 3030,
   "wsport": 3333,
   "elastalertPath": "/home/admin/elastalert",
-  "verbose": true,
+  "verbose": false,
   "es_debug": false,
   "debug": false,
   "rulesPath": {
