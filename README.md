@@ -8,6 +8,85 @@
 
 ---
 
+# Setting Alerts on ELK server using ElastAlert
+https://elastalert.readthedocs.io/
+
+Everything in the README file needs to run on the ELK server. Python 3.5+ required.
+
+## Adding a new Alert
+To create a new alert take the following steps
+1. Navigate to **ElastAlert Kibana Plugin**.
+2. For syntax of the rule, checkout [ElastAlert docs](https://elastalert.readthedocs.io/en/latest/running_elastalert.html)
+3. Currently the `Test` feature of the plugin doesn't work.
+
+## Installation
+1. Install Python3.6 (from main README)
+2. Install Supervisor (from main README)
+3. Install the following packages 
+    - `sudo apt-get install python3-pip python3.6-dev libffi-dev libssl-dev`
+4. Install ElastAlert
+    - `pip3 install elastalert`
+    - `pip3 install "elasticsearch>=5.0.0"`
+5. Create ElastAlert index in which it saves the alerts data
+    - Use command `elastalert-create-index`
+    - If you get that command doesn't exist, then run the following command to get the absolute path of this command
+    and run it instead.
+    - `sudo updatedb`
+    - `sudo locate elastalert-create-index`
+    - The connections details of ES can be read from the `elastalert.yaml` file. Just follow the default options otherwise.
+6. Install nodejs (instruction are listed for OS - Debian 9)
+    - `sudo apt update`
+    - `sudo apt install curl`
+    - `cd ~`
+    - `curl -sL https://deb.nodesource.com/setup_10.x -o nodesource_setup.sh`
+    - `sudo bash nodesource_setup.sh`
+    - `sudo apt install nodejs`
+    - `nodejs -v`
+
+# Setup
+Copy the `elastalert` directory in the `/home/admin/` folder on the server.  
+Remember if the username is something 
+other than `admin`, then that needs to be updated in the `.conf` and `.yaml` files of ElastAlert (config + rules) and `elastalertd.conf` (supervisor config).
+
+Now there are two ways to run ElastAlert.
+1. **With ElastAlert server and Kibana plugin** - Allows creation/updation/deletion of alerts from Kibana dashboard
+2. **Without ElastAlert server and Kibana plugin** - Requires ssh access to the ELK server to create/update/delete alerts
+
+
+## 1. To run ElastAlert with ElastAlert server (with Kibana plugin)
+1. Copy the `elastalert_serverd.conf` to `/etc/supervisor/elastalert_serverd.conf/` folder.
+2. Now to set up ElastAlert server run the following commands -
+    - `cd ~`
+    - `git clone https://github.com/squadrun/elastalert-server.git` (use personal access token in place of password if 2 FA is enabled)
+    - You may need to update the configuration of ES inside `config/config.json` file.
+3. To install ElastAlert Kibana plugin, go to this [url](https://github.com/bitsensor/elastalert-kibana-plugin/releases) 
+    and copy the link corresponding to your Kibana version. 
+    - On the ELK server, locate Kibana plugin location
+    - `locate kibana-plugin`
+    - `sudo <kibana-plugin-location> install <elastalert-kibana-plugin-url>`
+    - Example - `sudo /usr/share/kibana/bin/kibana-plugin install https://github.com/bitsensor/elastalert-kibana-plugin/releases/download/1.0.4/elastalert-kibana-plugin-1.0.4-7.1.1.zip`
+4. Now run the following commands to start ElastAlert server
+    - `sudo systemctl daemon-reload`
+    - `sudo systemctl enable supervisor`
+    - `sudo systemctl restart supervisor`
+    - `sudo supervisorctl status`
+
+## 2. To run ElastAlert without ElastAlert server (without kibana plugin)
+1. Copy the `elastalertd.conf` to `/etc/supervisor/conf.d/` folder.
+2. Now run the following commands to start the ElastAlert server
+    - `sudo systemctl daemon-reload`
+    - `sudo systemctl enable supervisor`
+    - `sudo systemctl restart supervisor`
+    - `sudo supervisorctl status`
+    
+The ElastAlert server should run smoothly now.
+  
+  
+ ---  
+   
+# Instructions below this line are what's written in the original ElastAlert Server Repo (no need to follow them)
+
+
 ## Installation
 The most convenient way to run the ElastAlert server is by using our Docker container image. The default configuration uses `localhost:9200` as ElasticSearch host, if this is not the case in your setup please edit `es_host` and `es_port` in both the `elastalert.yaml` and `config.json` configuration files.
 
